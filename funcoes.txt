@@ -1,0 +1,257 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<List<Map<String, dynamic>>> getProdutos() async {
+  final url = Uri.parse('http://<SEU_IP>:<PORTA>/produtos'); // Substitua com o seu IP e porta
+
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonData = json.decode(response.body);
+    return jsonData.cast<Map<String, dynamic>>();
+  } else {
+    throw Exception('Erro ao buscar produtos: ${response.statusCode}');
+  }
+}
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<Map<String, dynamic>> getProdutoPorNome(String nome) async {
+  final url = Uri.parse('http://<SEU_IP>:<PORTA>/produto/$nome'); // mudar ip e porta
+
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else if (response.statusCode == 404) {
+    throw Exception('Produto não encontrado');
+  } else {
+    throw Exception('Erro ao buscar produto: ${response.statusCode}');
+  }
+}
+
+Future<void> postProduto({
+  required String nome,
+  required String categoria,
+  required String descricao,
+  required double preco,
+  required int quantidade,
+}) async {
+  final url = Uri.parse('http://SEU_IP:5000/produtos'); // mudar o IP
+
+  final body = jsonEncode({
+    'nome': nome,
+    'categoria': categoria,
+    'descricao': descricao,
+    'preco': preco,
+    'quantidade': quantidade,
+  });
+
+  final headers = {'Content-Type': 'application/json'};
+
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 201) {
+      print('Produto adicionado com sucesso!');
+    } else {
+      final erro = jsonDecode(response.body);
+      print('Erro ao adicionar produto: ${erro['erro']}');
+    }
+  } catch (e) {
+    print('Erro de conexão: $e');
+  }
+}
+
+import 'package:http/http.dart' as http;
+
+Future<bool> deletarProdutoPorNome(String nome) async {
+  try {
+    final url = Uri.parse('http://SEU_IP:5000/deletar_produto/$nome');
+
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      print('Produto deletado com sucesso.');
+      return true;
+    } else {
+      print('Erro ao deletar produto: ${response.body}');
+      return false;
+    }
+  } catch (e) {
+    print('Erro de conexão ao deletar produto: $e');
+    return false;
+  }
+}
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<bool> atualizarEstoque({
+  required String operacao, // "entrada" ou "saida"
+  required String fornecedor,
+  required String nomeProduto,
+  required int quantidade,
+  String? observacao,
+}) async {
+  try {
+    final url = Uri.parse('http://SEU_IP:5000/produtos/estoque'); // URL do endpoint, trocar ip
+
+    final body = jsonEncode({
+      'operacao': operacao,
+      'fornecedor': fornecedor,
+      'nome_produto': nomeProduto,
+      'quantidade': quantidade,
+      if (observacao != null) 'observacao': observacao, // chat colocou isso mas acho q da pra tirar, não usamos essa info
+    });
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      print('Estoque atualizado com sucesso.');
+      return true;
+    } else {
+      print('Erro ao atualizar estoque: ${response.body}');
+      return false;
+    }
+  } catch (e) {
+    print('Erro de conexão ao atualizar estoque: $e');
+    return false;
+  }
+}
+
+Future<bool> editarProduto({
+  required String nomeProduto,
+  required String campo,
+  required dynamic novoValor,
+}) async {
+  final url = Uri.parse('http://SEU_IP_OU_DOMINIO:PORTA/produtos/editar'); // URL do endpoint, trocar ip ou dominio e porta
+
+  final body = {
+    'nome_produto': nomeProduto,
+    'campo': campo,
+    'novo_valor': novoValor,
+  };
+
+  final response = await http.put(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode(body),
+  );
+
+  if (response.statusCode == 200) {
+    return true; // Sucesso
+  } else {
+    // Aqui você pode tratar o erro ou lançar exceção, se quiser
+    return false;
+  }
+}
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+// Função para obter a lista de fornecedores
+Future<List<Map<String, dynamic>>> get_fornecedores() async {
+  final url = Uri.parse('http://IP_DO_BACKEND:PORTA/fornecedor'); // troca o IP e PORTA pelo seu backend
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final List<dynamic> fornecedoresJson = jsonDecode(response.body);
+    // Converte a lista dinâmica em lista de Map<String, dynamic>
+    return fornecedoresJson.cast<Map<String, dynamic>>();
+  } else {
+    throw Exception('Falha ao carregar fornecedores');
+  }
+}
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+// Função para buscar fornecedor pelo nome
+Future<Map<String, dynamic>> get_fornecedor_por_nome(String nome) async {
+  final url = Uri.parse('http://IP_DO_BACKEND:PORTA/fornecedor/$nome'); // trocar IP e PORTA
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> fornecedor = jsonDecode(response.body);
+    return fornecedor;
+  } else if (response.statusCode == 404) {
+    throw Exception('Fornecedor não encontrado');
+  } else {
+    throw Exception('Erro ao buscar fornecedor');
+  }
+}
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<String> post_fornecedor({
+  required String nome,
+  required String categoria,
+  required String descricao,
+}) async {
+  final url = Uri.parse('http://IP_DO_BACKEND:PORTA/fornecedor'); // troca IP e porta
+  final Map<String, dynamic> dados = {
+    'nome': nome,
+    'categoria': categoria,
+    'descricao': descricao,
+    'quantidade': 0, // seu back não espera isso do front, mas mandamos por segurança
+  };
+
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode(dados),
+  );
+
+  if (response.statusCode == 201) {
+    return 'Fornecedor adicionado com sucesso!';
+  } else if (response.statusCode == 400) {
+    final error = jsonDecode(response.body)['erro'];
+    throw Exception('Erro: $error');
+  } else {
+    throw Exception('Erro ao adicionar fornecedor');
+  }
+}
+
+import 'package:http/http.dart' as http;
+
+Future<void> deleteFornecedor(String nome) async {
+  final url = Uri.parse('http://<IP_DO_BACKEND>:5000/deletar_fornecedor/$nome');
+
+  final response = await http.delete(url);
+
+  if (response.statusCode == 200) {
+    print('Fornecedor deletado com sucesso!');
+  } else {
+    print('Erro ao deletar fornecedor: ${response.body}');
+  }
+}
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+Future<void> editarFornecedor(String nomeFornecedor, String campo, dynamic novoValor) async {
+  final url = Uri.parse('http://<IP_DO_BACKEND>:5000/fornecedores/editar');
+
+  final response = await http.put(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'nome_fornecedor': nomeFornecedor,
+      'campo': campo,
+      'novo_valor': novoValor,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    print('Fornecedor atualizado com sucesso!');
+  } else {
+    print('Erro ao atualizar fornecedor: ${response.body}');
+  }
+}
