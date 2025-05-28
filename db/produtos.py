@@ -33,16 +33,16 @@ def atualizar_quantidade_produto(conn, cursor, nome_produto, operacao, quantidad
 
         produto_codigo, quantidade_atual = resultado
 
-        if operacao.lower() == "adicionar":
+        if operacao.lower() == "entrada":
             nova_quantidade = quantidade_atual + quantidade_alteracao
-        elif operacao.lower() == "remover":
+        elif operacao.lower() == "saida":
             if quantidade_alteracao > quantidade_atual:
                 raise ValueError(
                     f"Não há estoque suficiente para remover {quantidade_alteracao} unidades de '{nome_produto}'. Estoque atual: {quantidade_atual}."
                 )
             nova_quantidade = quantidade_atual - quantidade_alteracao
         else:
-            raise ValueError("Operação inválida! Use 'adicionar' ou 'remover'.")
+            raise ValueError("Operação inválida! Use 'entrada' ou 'saida'.")
 
         sql_update = "UPDATE produtos SET quantidade = %s WHERE codigo = %s"
         cursor.execute(sql_update, (nova_quantidade, produto_codigo))

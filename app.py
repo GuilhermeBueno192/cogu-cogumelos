@@ -1,11 +1,17 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
 from flask import Flask, jsonify, request
 from functools import wraps
 import logging
-from db import (
-    conectar, pesquisar_por_nome, deletar_por_nome, editar_valor, registrar_movimentacao,
-    adicionar_produto, atualizar_quantidade_produto, listar_produtos,
-    adicionar_fornecedor, listar_fornecedores, 
-)
+from db.conexao import conectar
+from db.config import DATABASE_CONFIG
+from db.produtos import adicionar_produto, atualizar_quantidade_produto, listar_produtos
+from db.fornecedor import adicionar_fornecedor, listar_fornecedores
+from db.movimentacoes import registrar_movimentacao
+from db.utils import pesquisar_por_nome, deletar_por_nome, editar_valor
+from menu_teste import iniciar_teste_menu
 
 app = Flask(__name__)
 
@@ -123,7 +129,7 @@ def atualizar_estoque(conn, cursor):
             cursor,
             nome_produto=dados['nome_produto'],
             fornecedor=dados['fornecedor'],
-            tipo=dados['operacao'],
+            tipo_movimentacao=dados['operacao'],
             quantidade=dados['quantidade'],
             observacao=dados.get('observacao')  # Pode ser None se não vier no JSON
         )
@@ -180,7 +186,7 @@ def visualizar_fornecedor(conn, cursor, nome):
 @com_conexao
 def post_fornecedor(conn, cursor):
     dados = request.get_json()
-    campos = ['nome', 'categoria', 'descricao', 'quantidade']
+    campos = ['nome', 'categoria', 'descricao']
     for campo in campos:
         if campo not in dados:
             return jsonify({'erro': f'Campo obrigatório "{campo}" ausente.'}), 400
@@ -189,7 +195,7 @@ def post_fornecedor(conn, cursor):
         adicionar_fornecedor(
             conn, cursor,
             dados['nome'], dados['categoria'],
-            dados['descricao'], 0
+            dados['descricao']
         )
         return jsonify({'mensagem': 'Fornecedor adicionado com sucesso!'}), 201
     except Exception as e:

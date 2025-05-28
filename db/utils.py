@@ -2,7 +2,7 @@ import logging
 
 def pesquisar_por_nome(cursor, tabela, nome_coluna, nome_valor):
     try:
-        cursor.execute(f"SELECT * FROM {tabela} WHERE {nome_coluna} = ?", (nome_valor,))
+        cursor.execute(f"SELECT * FROM {tabela} WHERE {nome_coluna} = %s", (nome_valor,))
         resultado = cursor.fetchone()
         if not resultado:
             raise ValueError(f"{tabela.capitalize()} com nome '{nome_valor}' não encontrado.")
@@ -17,7 +17,7 @@ def editar_valor(conn, cursor, tabela, coluna_para_alterar, novo_valor, coluna_f
         # Verifica se o item existe antes de tentar atualizar
         _ = pesquisar_por_nome(cursor, tabela, coluna_filtro, valor_filtro)
 
-        sql = f"UPDATE {tabela} SET {coluna_para_alterar} = ? WHERE {coluna_filtro} = ?"
+        sql = f"UPDATE {tabela} SET {coluna_para_alterar} = %s WHERE {coluna_filtro} = %s"
         cursor.execute(sql, (novo_valor, valor_filtro))
         conn.commit()
 
@@ -29,7 +29,7 @@ def editar_valor(conn, cursor, tabela, coluna_para_alterar, novo_valor, coluna_f
 def deletar_por_nome(conn, cursor, tabela, nome_coluna, nome_valor):
     try:
         _ = pesquisar_por_nome(cursor, tabela, nome_coluna, nome_valor)
-        cursor.execute(f"DELETE FROM {tabela} WHERE {nome_coluna} = ?", (nome_valor,))
+        cursor.execute(f"DELETE FROM {tabela} WHERE {nome_coluna} = %s", (nome_valor,))
         conn.commit()
         logging.info(f"{tabela.capitalize()} '{nome_valor}' excluído com sucesso.")
     except Exception as e:

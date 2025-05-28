@@ -1,6 +1,6 @@
 import mysql.connector
 import logging
-from config import DATABASE_CONFIG
+from db.config import DATABASE_CONFIG
 
 def conectar():
     try:
