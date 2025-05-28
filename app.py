@@ -11,7 +11,6 @@ from db.produtos import adicionar_produto, atualizar_quantidade_produto, listar_
 from db.fornecedor import adicionar_fornecedor, listar_fornecedores
 from db.movimentacoes import registrar_movimentacao
 from db.utils import pesquisar_por_nome, deletar_por_nome, editar_valor
-from menu_teste import iniciar_teste_menu
 
 app = Flask(__name__)
 
@@ -235,4 +234,5 @@ def editar_fornecedor(conn, cursor):
 # ---------------- EXECUÇÃO ----------------
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
