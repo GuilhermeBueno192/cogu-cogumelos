@@ -5,5 +5,5 @@ DATABASE_CONFIG = {
     "user": os.getenv("DB_USER"), #"root"
     "password": os.getenv("DB_PASSWORD"), #"XSfSTYdadqgRBhKchGXpjSJCxHlDSgvU"
     "database": os.getenv("DB_DATABASE"), #"railway"
-    "port": os.getenv("DB_PORT") #36504
+    "port": int(os.getenv("DB_PORT")) #36504
 }
