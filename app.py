@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from functools import wraps
 import logging
 from db.conexao import conectar
@@ -13,6 +14,7 @@ from db.movimentacoes import registrar_movimentacao
 from db.utils import pesquisar_por_nome, deletar_por_nome, editar_valor
 
 app = Flask(__name__)
+CORS(app)
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
